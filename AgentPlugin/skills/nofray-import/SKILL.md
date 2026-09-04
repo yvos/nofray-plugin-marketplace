@@ -18,9 +18,11 @@ connects to the source system.
 1. Use only the export, folder, archive, or records the user supplied. Identify
    the source system and format, then select only the requested tasks, projects,
    and contacts.
-2. Confirm once whether archived records are included and whether referenced
-   projects or contacts should be imported as dependencies. Never broaden the
-   scan to unrelated records or notes.
+2. If scope is not already explicit, ask one grouped question: import all
+   supplied projects and contacts (recommended), or only referenced
+   dependencies. Include archived-record inclusion in that same question where
+   practical. Never ask separate project and contact scope questions, and never
+   broaden the scan to unrelated records or notes.
 3. Never modify, rename, move, normalize, stage, or create a filtered copy of
    source files. If the client cannot read a local folder, ask for a supported
    export, zip, or client filesystem access; NoFray source-path permission cannot
@@ -30,16 +32,23 @@ connects to the source system.
 
 ## Build a complete conversion ledger
 
-Call `nofray_get_workspace_configuration` and `nofray_list_field_values` before
-conversion. Inventory every observed source field and account for it exactly
-once as:
+Before conversion, call `nofray_get_workspace_configuration` with `recordTypes`
+covering every target record type, and call `nofray_list_field_values`. Treat
+the returned live, resolved mdbase schemas as the target-format authority; do
+not rely on a copied schema. Inventory every observed source field in a
+complete client-owned ledger. For each field record its value shape,
+record-type coverage, proposed target, category, and exact merge, empty-value,
+separator, and duplicate rules. Account for every field exactly once as:
 
 - **Directly mapped**: exact one-to-one mapping or rename.
 - **Proposed transformation**: merge, split, value-type change, title fallback,
-  or other semantic conversion. State its rules and obtain explicit approval.
+  or other semantic conversion.
 - **Preserved only as metadata**: retained in frontmatter, but not a functional
   writable NoFray field and not guaranteed to appear in NoFray's UI.
 - **Proposed omission**: dropped only after explicit approval.
+
+Exact direct mappings need no approval. Group every material transformation
+and omission into one approval round; do not ask field-by-field questions.
 
 Never describe retained frontmatter as a functional field merely because its
 bytes survive. Do not hide metadata-only or omitted fields in an "unmapped"
@@ -116,8 +125,12 @@ below stays identical for every source.
 2. Fetch every `records` and `diagnostics` page with
    `nofray_get_import_preview_page`. Maintain a client ledger from each
    `sourceReference` to its returned `recordReference`.
-3. Present creates, identical records, conflicts, deferred records, exclusions,
-   diagnostics, and the complete conversion ledger.
+3. Present a concise but confidence-building final preview: create, identical,
+   conflict, deferred, and excluded counts; grouped diagnostics; a complete-ledger
+   summary; pending decisions; the title-based filename policy and any
+   collision/fallback exceptions; and representative
+   `sourceReference` → `targetPath` examples. Fetch every page internally and
+   state that full ledger and preview rows are available on request.
 4. For each `requiredMappings` entry, recommend a target but obtain explicit
    approval. Status and priority targets come from `nofray_list_field_values`.
    Assignee targets are Contact IDs from existing or concurrently uploaded
@@ -131,8 +144,9 @@ repair them after apply.
 
 ## Approve, apply, and resume
 
-After showing the complete final preview, obtain natural-language approval from
-the user for that exact plan. The user does not need to type an integrity hash.
+After showing the complete final preview, obtain one natural-language approval
+from the user for that exact sealed plan. The user does not need to type an
+integrity hash.
 Then:
 
 1. Pass the preview's server-authored `previewID`, `planHash`,
