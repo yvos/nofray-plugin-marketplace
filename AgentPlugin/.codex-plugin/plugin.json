@@ -1,0 +1,45 @@
+{
+  "name": "nofray",
+  "version": "0.4.0",
+  "description": "Manage NoFray tasks, extract grounded tasks from transcripts, and safely run external-data imports.",
+  "author": {
+    "name": "NoFray"
+  },
+  "homepage": "https://github.com/yvos/nofray-plugin-marketplace/tree/main/AgentPlugin",
+  "repository": "https://github.com/yvos/nofray-plugin-marketplace",
+  "keywords": [
+    "tasks",
+    "action-items",
+    "transcripts",
+    "tasknotes",
+    "obsidian",
+    "import",
+    "todos",
+    "productivity",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./mcp.json",
+  "interface": {
+    "displayName": "NoFray",
+    "shortDescription": "Manage tasks, transcripts, and imports in NoFray",
+    "longDescription": "Use NoFray to manage tasks through its safe proposal workflow, extract grounded action items from client-held transcripts using NoFray's versioned contract, and run external-data imports through one canonical import plan.",
+    "developerName": "NoFray",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/yvos/nofray-plugin-marketplace",
+    "defaultPrompt": [
+      "Show my open action items in NoFray.",
+      "Extract grounded tasks from this transcript and create them in NoFray.",
+      "Preview an external task-data import into my NoFray workspace."
+    ],
+    "brandColor": "#EB6708",
+    "logo": "./assets/logo.svg",
+    "logoDark": "./assets/logo.svg",
+    "composerIcon": "./assets/composer-icon.svg",
+    "screenshots": []
+  }
+}

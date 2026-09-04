@@ -1,0 +1,19 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "nofray",
+  "version": "0.4.0",
+  "description": "Manage NoFray tasks, extract grounded tasks from transcripts, and safely run external-data imports.",
+  "homepage": "https://github.com/yvos/nofray-plugin-marketplace/tree/main/AgentPlugin",
+  "repository": "https://github.com/yvos/nofray-plugin-marketplace",
+  "keywords": [
+    "tasks",
+    "action-items",
+    "transcripts",
+    "tasknotes",
+    "obsidian",
+    "import",
+    "todos",
+    "productivity",
+    "mcp"
+  ]
+}

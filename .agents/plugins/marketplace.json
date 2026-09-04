@@ -1,0 +1,15 @@
+{
+  "name": "nofray-marketplace",
+  "interface": {
+    "displayName": "NoFray plugins"
+  },
+  "plugins": [
+    {
+      "name": "nofray",
+      "source": {
+        "source": "local",
+        "path": "./AgentPlugin"
+      }
+    }
+  ]
+}
