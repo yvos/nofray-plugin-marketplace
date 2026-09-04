@@ -5,11 +5,18 @@ The official public marketplace for the NoFray plugin for Codex and Claude Code.
 It contains only the distributable plugin bundle. The NoFray application and
 its users' workspace data are not included.
 
-## Install
+## Install in Codex
 
 ```sh
 codex plugin marketplace add yvos/nofray-plugin-marketplace
 codex plugin add nofray@nofray-marketplace
+```
+
+## Install in Claude Code
+
+```sh
+claude plugin marketplace add yvos/nofray-plugin-marketplace
+claude plugin install nofray@nofray-marketplace
 ```
 
 The plugin connects only to a NoFray MCP server running locally on the user's
