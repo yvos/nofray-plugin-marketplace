@@ -1,0 +1,13 @@
+{
+  "name": "nofray-marketplace",
+  "description": "NoFray task management plugins for local macOS workspaces.",
+  "owner": {
+    "name": "NoFray"
+  },
+  "plugins": [
+    {
+      "name": "nofray",
+      "source": "./AgentPlugin"
+    }
+  ]
+}
