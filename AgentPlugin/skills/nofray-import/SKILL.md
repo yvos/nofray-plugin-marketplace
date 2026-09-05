@@ -1,6 +1,6 @@
 ---
 name: nofray-import
-description: Use NoFray when the user wants to import or migrate tasks, projects, or contacts from another task manager, Markdown collection, Obsidian vault, TaskNotes folder, or supported export into their local NoFray workspace.
+description: Use NoFray when the user wants to import or migrate tasks, projects, or contacts from pasted text, arbitrary source files, another task manager, Markdown, an Obsidian vault, or an export into their local NoFray workspace.
 ---
 
 # Import external data into NoFray
@@ -21,6 +21,11 @@ import tool is absent, stop and report the missing capability.
 
 The client reads and converts the source; NoFray never opens a supplied path or
 connects to the source system.
+The source format is unrestricted: pasted task lists, free text, Markdown,
+tables, and other readable exports all use the same target contract. No source
+schema, TaskNotes installation, or Obsidian metadata is required. For free text,
+describe observed source components (such as the task text) in the inventory;
+do not invent source fields just to match the target schema.
 
 1. Use only the export, folder, archive, or records the user supplied. Identify
    the source system and format, then select only the requested tasks, projects,
@@ -34,8 +39,9 @@ connects to the source system.
    source files. If the client cannot read a local folder, ask for a supported
    export, zip, or client filesystem access; NoFray source-path permission cannot
    solve it.
-4. Follow the source adapter's documented semantics. If a source field or value
-   is unclear, expose the ambiguity instead of guessing.
+4. Use documented source semantics when available and inspect the actual
+   supplied content. If a source field or value is unclear, expose the ambiguity
+   instead of guessing.
 
 ## Build a complete conversion ledger
 
@@ -81,8 +87,8 @@ the resolved dependency record with the records that reference it. If a source
 relationship has no NoFray equivalent, preserve it as approved source metadata
 or omit it after approval. Stop on absent or ambiguous references.
 
-For every non-trivial conversion, include a v2 translation manifest in the
-preview request. Each observed field appears exactly once as `direct`,
+For every preview, include a v2 translation manifest, including when every
+source field maps directly. Each observed field appears exactly once as `direct`,
 `transformed`, `metadataOnly`, or `omitted`, with the target field and bounded
 transformation explanation where applicable. Each relation mapping carries its
 owner source reference, field, source token, target record type, and explicit
@@ -143,10 +149,15 @@ only to resolve approved dependencies. Resolve project wikilinks against those
 selected records. A link to another task is hierarchy, not a NoFray project;
 preserve it as approved source metadata or omit it after approval.
 
-For another source, derive mappings from its documented export schema and the
-actual supplied data. Keep source-specific parsing and discovery rules at this
-adapter boundary; the upload, preview, confirmation, apply, and resume workflow
-below stays identical for every source.
+Obsidian aliases and wikilinks can provide candidate evidence when present;
+they are optional hints, not identity or input requirements. Distinct projects
+may share a title; resolve them by stable IDs or explicit source references.
+
+For another source, derive mappings from the actual supplied data and any
+available export documentation. Propose field renames, merges, splits, and
+body construction through the conversion ledger. Keep source-specific parsing
+and discovery rules at this adapter boundary; the upload, preview,
+confirmation, apply, and resume workflow below stays identical for every source.
 
 ## Preview and resolve
 
@@ -163,8 +174,10 @@ below stays identical for every source.
    state that full ledger and preview rows are available on request.
 4. For each `requiredMappings` entry, recommend a target but obtain explicit
    approval. Status and priority targets come from `nofray_list_field_values`.
-   Assignee targets are Contact IDs from existing or concurrently uploaded
-   contact records; pass these IDs unchanged.
+   These value mappings cover status and priority only. Resolve assignees and
+   project links exclusively through `translationManifest.relationMappings`,
+   using existing canonical IDs or explicit uploaded source references. Do not
+   add a second assignee mapping to `valueMappings`.
 5. Re-preview the same sealed upload with only approved value mappings and the
    unchanged approved translation manifest, fetch all pages again, and use only
    this newest preview. Relation mappings must remain explicit in the manifest.

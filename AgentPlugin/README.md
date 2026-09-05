@@ -222,11 +222,15 @@ and create its grounded action items. The agent should first call
 `nofray_get_task_extraction_contract`, keep the transcript in the client, then
 use the ordinary task discovery and proposal workflow for each intended write.
 
-For an import test, supply a small supported export, such as a TaskNotes folder
-or zip, and ask the agent to preview it. The agent should limit source discovery
+For an import test, paste a task list or supply a small readable export, such as
+a Markdown collection, table, TaskNotes folder, or zip, and ask the agent to
+preview it. No source schema or Obsidian metadata is required. The agent should limit source discovery
 to the requested records and approved dependencies, show a complete conversion
 ledger with a v2 translation manifest and explicit relation mappings, and wait
 for approval before applying the server-authored confirmation value.
+Assignees and project links use the manifest's explicit typed resolutions;
+`valueMappings` admits only status and priority. Equal project titles are valid
+when their identities differ.
 Interrupted imports can resume by querying
 `nofray_get_import_status`.
 

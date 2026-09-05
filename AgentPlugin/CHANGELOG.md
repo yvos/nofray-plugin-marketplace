@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Clarify that import sources may be pasted tasks, free text, or any readable
+  export. TaskNotes and Obsidian conventions are optional interpretation hints.
+- Use only V2 manifest relation mappings for assignees and project links;
+  `valueMappings` now covers status and priority only.
+
 ## 0.6.0 - 2026-09-05
 
 This prerelease aligns the plugin with NoFray's schema-driven v2 MCP and import
