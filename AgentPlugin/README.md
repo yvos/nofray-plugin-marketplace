@@ -14,8 +14,8 @@ plugin combines:
 - a generic import skill for scoped source conversion, mapping, preview,
   approval, resumable batching, and verification, with TaskNotes and Obsidian
   among its source adapters;
-- the safe NoFray proposal workflow for ordinary writes and the canonical
-  import workflow for migrations.
+- the v2 NoFray proposal workflow for ordinary writes and the canonical v2
+  import workflow.
 
 Codex surfaces use the bundled NoFray logo and brand color from the native
 `.codex-plugin` presentation manifest. These visual assets do not alter skill
@@ -30,6 +30,90 @@ plugin. NoFray and the AI client must run on the same Mac.
 - A workspace mounted in NoFray.
 - A client that supports Agent Plugins 1.0 skills and Streamable HTTP MCP.
 - Port `7341` available on the Mac.
+
+## Contract version
+
+This release uses the v2 MCP and import contract as its only regular mutation
+and import surface. A client must discover the mounted workspace before every
+mutation session and require the live `recordMutationContractV2` and
+`recordMutationV2` capabilities, plus `recordReferenceCandidatesV2` when it
+resolves relations. The client uses the schemas returned by
+`nofray_get_workspace_configuration`. The plugin does not fall back to a
+legacy request envelope when a capability is absent.
+
+Mutation field operations are exact and sparse:
+
+```json
+{
+  "operation": "set",
+  "value": "2026-09-30T17:00:00+02:00"
+}
+```
+
+Use `{ "operation": "clear" }` without a `value` to clear a field; omit a
+field to leave it unchanged. The root request's `context` object must carry the
+same discovered `workspaceID`, `sessionID`, `generation`, `schemaDigest`, and
+`capabilityDigest`. The recurrence value retains its canonical storage
+`version: 1` member inside the recurrence object; that is separate from the
+v2 MCP envelope.
+
+The live capability contract may be narrower than the raw mdbase schema. Typed
+collection fields (`aliases`, `tags`, `contexts`, `assignees`, `projectLinks`,
+`reminders`, `methods`, and `affiliations`) do not accept `set` with `null`:
+use `set` with an empty array for an empty collection or `clear` to remove the
+field. Optional temporal and recurrence values accept `null` only when the
+discovered field contract advertises it. The client must use the advertised
+`allowsNull` value and verify the canonical readback.
+
+Import previews use a version 2 translation manifest. Every observed source
+field must occur once in `fieldDispositions` as `direct`, `transformed`,
+`metadataOnly`, or `omitted`. Relationship decisions go in
+`relationMappings` with an owner reference, source token, target record type,
+and an explicit `existingRecordID`, `uploadedSourceReference`, `ambiguous`,
+`unresolved`, or `wrongType` resolution. Fetch all preview sections:
+`records`, `diagnostics`, `fieldDispositions`, and `relationResolutions`.
+Apply only the newest server preview after user approval; a changed manifest
+creates a new preview and plan hash.
+
+`translationManifest.sourceInventory` is required in every import preview. It
+is a client-declared pre-conversion array of `TaskNotesImportObservedField`
+objects, each carrying `sourceField`, `recordType`, `valueShape`,
+`observedRecordCount`, and `observedValueCount`. The field disposition ledger
+must cover that inventory exactly once. The uploaded canonical records remain
+separate target inputs containing only `{sourceReference, recordType, markdown}`;
+their fields are validated against the live target schema. For example, a
+source `foo` transformed to canonical `due`, and an approved omission of
+source `approved`, remain visible in the inventory and ledger even though the
+canonical Markdown needs only `due` (and any explicitly preserved metadata):
+
+```json
+{
+  "version": 2,
+  "sourceInventory": [
+    {"sourceField": "title", "recordType": "task", "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1},
+    {"sourceField": "foo", "recordType": "task", "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1},
+    {"sourceField": "approved", "recordType": "task", "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1}
+  ],
+  "fieldDispositions": [
+    {"ledgerID": "task:title", "sourceField": "title", "sourceRecordTypes": ["task"], "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1, "disposition": "direct", "targets": [{"recordType": "task", "field": "title"}], "decisionStatus": "exact"},
+    {"ledgerID": "task:foo", "sourceField": "foo", "sourceRecordTypes": ["task"], "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1, "disposition": "transformed", "targets": [{"recordType": "task", "field": "due"}], "transformation": {"summary": "Map foo to canonical due", "sourceFields": ["foo"]}, "decisionStatus": "approved"},
+    {"ledgerID": "task:approved", "sourceField": "approved", "sourceRecordTypes": ["task"], "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1, "disposition": "omitted", "targets": [], "decisionStatus": "approved"}
+  ],
+  "relationMappings": []
+}
+```
+
+When discovery also advertises `recordMutationChangeSetV2`, the same proposal
+tools accept `request.action: "changeSet"` for exactly one Task operation
+(create or update), plus optional Project and Contact creates. The total is at
+most 16 operations, so at most 15 dependency creates may accompany the Task.
+Each create has a `localReference`; the Task update uses a target `recordID`.
+Preview rejects multiple Task operations, Project or Contact updates,
+unsupported record types, invalid relation types, cycles, and graphs outside
+this one-Task-plus-dependencies shape before any write. Resolve duplicate
+choices in a `choices` dictionary keyed by operation ID, using `createNew` or
+`useExisting` with the server candidate ID. Apply the returned resolution
+unchanged and read back every affected record.
 
 ## Prepare NoFray
 
@@ -127,9 +211,11 @@ After installation, start a new agent session and ask:
 > Show my open action items in NoFray.
 
 A working installation should let the agent discover the NoFray tools, read
-the workspace configuration, list canonical field values when needed, and
-search tasks. For a write test, explicitly ask it to create a disposable task;
-the agent should use the proposal, resolution, and apply tools in sequence.
+the workspace configuration and live `recordMutationContractV2` capability,
+list canonical field values when needed, and search tasks. For a write test,
+explicitly ask it to create a disposable task; the agent should pass the v2
+context-bound request through the proposal, resolution, and apply tools in
+sequence, then verify the canonical readback.
 
 For a transcript test, supply a short transcript and ask the agent to extract
 and create its grounded action items. The agent should first call
@@ -139,8 +225,9 @@ use the ordinary task discovery and proposal workflow for each intended write.
 For an import test, supply a small supported export, such as a TaskNotes folder
 or zip, and ask the agent to preview it. The agent should limit source discovery
 to the requested records and approved dependencies, show a complete conversion
-ledger, and wait for approval before applying the server-authored confirmation
-value. Interrupted imports can resume by querying
+ledger with a v2 translation manifest and explicit relation mappings, and wait
+for approval before applying the server-authored confirmation value.
+Interrupted imports can resume by querying
 `nofray_get_import_status`.
 
 ## Authentication
@@ -238,15 +325,17 @@ client through **Connect AI Client…**.
 
 ### Read calls work but writes do not
 
-NoFray writes require all three server-owned steps:
+NoFray writes use the v2 request and require all three server-owned steps:
 
 1. `nofray_create_change_proposal`
 2. `nofray_resolve_change_proposal`
 3. `nofray_apply_change_proposal`
 
 The agent must pass server-authored IDs, generations, hashes, and resolutions
-unchanged. It must also use canonical status and priority IDs returned by
-`nofray_list_field_values`.
+unchanged, together with the discovered workspace/session and schema and
+capability digests. It must also use canonical status and priority IDs returned
+by `nofray_list_field_values`, and verify each applied record with its canonical
+get tool.
 
 ## Package layout
 
@@ -263,6 +352,7 @@ AgentPlugin/
 ├── plugin.json
 ├── mcp.json
 ├── README.md
+├── CHANGELOG.md
 └── skills/
     ├── nofray-task-management/
     │   └── SKILL.md

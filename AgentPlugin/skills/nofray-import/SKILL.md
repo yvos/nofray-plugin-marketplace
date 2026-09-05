@@ -10,6 +10,13 @@ one server-owned, previewed batch workflow. Never replace missing import results
 with ordinary per-record change proposals: those writes were not part of the
 confirmed import plan.
 
+The import workflow uses the v2 target contract discovered from the mounted
+workspace. Call `nofray_get_workspace_configuration` before conversion and use
+only the live schemas and advertised capabilities. Confirm that the registered
+v2 import tools are available before uploading. There is no legacy import
+envelope or silent lossy fallback. If the required v2 mutation capability or
+import tool is absent, stop and report the missing capability.
+
 ## Establish source scope
 
 The client reads and converts the source; NoFray never opens a supplied path or
@@ -33,10 +40,18 @@ connects to the source system.
 ## Build a complete conversion ledger
 
 Before conversion, call `nofray_get_workspace_configuration` with `recordTypes`
-covering every target record type, and call `nofray_list_field_values`. Treat
-the returned live, resolved mdbase schemas as the target-format authority; do
-not rely on a copied schema. Inventory every observed source field in a
-complete client-owned ledger. For each field record its value shape,
+covering every target record type, verify the advertised `recordMutationV2`
+and `recordMutationContractV2` capabilities, confirm the v2 import tools are
+registered, and call `nofray_list_field_values`. Treat the returned live,
+resolved mdbase schemas as the target-format authority; do not rely on a copied
+schema. Inventory every observed source field in a complete client-owned ledger.
+`translationManifest.sourceInventory` is required and must contain one
+`TaskNotesImportObservedField` for every observed `(recordType, sourceField)`;
+each entry declares `sourceField`, `recordType`, `valueShape`,
+`observedRecordCount`, and `observedValueCount`. The field disposition ledger
+must cover the same source entries exactly once. This is the source's
+pre-conversion inventory, separate from canonical upload validation.
+For each field record its value shape,
 record-type coverage, proposed target, category, and exact merge, empty-value,
 separator, and duplicate rules. Account for every field exactly once as:
 
@@ -54,10 +69,24 @@ Never describe retained frontmatter as a functional field merely because its
 bytes survive. Do not hide metadata-only or omitted fields in an "unmapped"
 count.
 
+For example, if source `foo` becomes canonical `due` and source `approved` is
+omitted after approval, both source fields remain in `sourceInventory` and
+`fieldDispositions`; the uploaded record's canonical Markdown contains `due`
+and does not need `foo` or `approved`. The upload contract is still exactly
+`{sourceReference, recordType, markdown}`, and its target fields are validated
+against the live target schema.
+
 Resolve every project or contact reference against the selected source. Upload
 the resolved dependency record with the records that reference it. If a source
 relationship has no NoFray equivalent, preserve it as approved source metadata
 or omit it after approval. Stop on absent or ambiguous references.
+
+For every non-trivial conversion, include a v2 translation manifest in the
+preview request. Each observed field appears exactly once as `direct`,
+`transformed`, `metadataOnly`, or `omitted`, with the target field and bounded
+transformation explanation where applicable. Each relation mapping carries its
+owner source reference, field, source token, target record type, and explicit
+resolution. A changed manifest requires a new preview and plan hash.
 
 Convert recurrence only after semantic approval, using the complete canonical
 envelope, for example:
@@ -121,7 +150,8 @@ below stays identical for every source.
 
 ## Preview and resolve
 
-1. First call `nofray_preview_import` with an empty `valueMappings` array.
+1. First call `nofray_preview_import` with the sealed upload, an empty
+   `valueMappings` array, and the complete v2 translation manifest.
 2. Fetch every `records` and `diagnostics` page with
    `nofray_get_import_preview_page`. Maintain a client ledger from each
    `sourceReference` to its returned `recordReference`.
@@ -135,8 +165,9 @@ below stays identical for every source.
    approval. Status and priority targets come from `nofray_list_field_values`.
    Assignee targets are Contact IDs from existing or concurrently uploaded
    contact records; pass these IDs unchanged.
-5. Re-preview the same sealed upload with only approved mappings, fetch all pages
-   again, and use only this newest preview.
+5. Re-preview the same sealed upload with only approved value mappings and the
+   unchanged approved translation manifest, fetch all pages again, and use only
+   this newest preview. Relation mappings must remain explicit in the manifest.
 
 If the preview still has conflicts, deferred or excluded records, or error
 diagnostics, report them before seeking apply approval. Never silently filter or

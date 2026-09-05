@@ -1,7 +1,7 @@
 {
   "name": "nofray",
-  "version": "0.4.0",
-  "description": "Manage NoFray tasks, extract grounded tasks from transcripts, and safely run external-data imports.",
+  "version": "0.6.0",
+  "description": "Manage NoFray tasks with the live v2 contract, extract grounded tasks from transcripts, and safely run external-data imports.",
   "author": {
     "name": "NoFray"
   },
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "NoFray",
     "shortDescription": "Manage tasks, transcripts, and imports in NoFray",
-    "longDescription": "Use NoFray to manage tasks through its safe proposal workflow, extract grounded action items from client-held transcripts using NoFray's versioned contract, and run external-data imports through one canonical import plan.",
+    "longDescription": "Use NoFray to manage tasks through its v2 safe proposal workflow, extract grounded action items from client-held transcripts using NoFray's versioned contract, and run external-data imports through one canonical v2 import plan.",
     "developerName": "NoFray",
     "category": "Productivity",
     "capabilities": [
