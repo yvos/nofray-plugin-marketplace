@@ -58,12 +58,16 @@ same discovered `workspaceID`, `sessionID`, `generation`, `schemaDigest`, and
 v2 MCP envelope.
 
 The live capability contract may be narrower than the raw mdbase schema. Typed
-collection fields (`aliases`, `tags`, `contexts`, `assignees`, `projectLinks`,
+collection fields (`aliases`, `tags`, `contexts`, `assignees`, `projects` (legacy: `projectLinks`),
 `reminders`, `methods`, and `affiliations`) do not accept `set` with `null`:
 use `set` with an empty array for an empty collection or `clear` to remove the
 field. Optional temporal and recurrence values accept `null` only when the
 discovered field contract advertises it. The client must use the advertised
 `allowsNull` value and verify the canonical readback.
+Projects can expose `tags`, `scheduled`, and `due`, while contacts can expose
+`tags`; their availability and exact schema are returned by discovery. A
+missing named field reported in `unavailableFields` is a source-health warning,
+not an authored empty value, and must remain visible until an explicit repair.
 
 Import previews use a version 2 translation manifest. Every observed source
 field must occur once in `fieldDispositions` as `direct`, `transformed`,

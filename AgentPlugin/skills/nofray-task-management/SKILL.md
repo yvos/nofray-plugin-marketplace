@@ -94,12 +94,18 @@ relative offsets, stable IDs, duplicate IDs, and the effective scheduled/due
 anchor before proposing them.
 
 The live capability contract may narrow a nullable raw schema for typed
-collections. `aliases`, `tags`, `contexts`, `assignees`, `projectLinks`,
+collections. `aliases`, `tags`, `contexts`, `assignees`, `projects` (legacy: `projectLinks`),
 `reminders`, `methods`, and `affiliations` reject `set` with `null`; use `set`
 with `[]` for an empty collection or `clear` to remove it. Optional temporal
 and recurrence fields accept `null` only when their discovered `allowsNull`
 value is true. Never rely on a raw schema's nullable branch when the live
 semantic capability disallows it.
+
+Projects may expose `tags`, `scheduled`, and `due`; contacts may expose
+`tags`. Send project dates as the live contract's temporal string and verify
+them in canonical readback just like task dates. If readback reports one of
+these named fields in `unavailableFields`, preserve the warning and do not
+interpret the missing field as an authored empty value.
 
 When discovery advertises `recordMutationChangeSetV2`, the same proposal tools
 accept a bounded `request` with `action: "changeSet"` for exactly one Task
