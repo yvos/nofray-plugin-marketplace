@@ -9,8 +9,8 @@ plugin combines:
 - a focused task-management skill that recognizes tasks, action items, actions, todos,
   follow-ups, next steps, work items, reminders, taken, actiepunten, acties,
   vervolgacties, vervolgstappen, werkpunten, and herinneringen;
-- a server-versioned task-extraction contract, so the client uses the same
-  prompt and response schema as NoFray without uploading the transcript to MCP;
+- a read-only meeting-analysis prompt tool, so the client uses the same
+  system prompt as NoFray without uploading the transcript to MCP;
 - a generic import skill for scoped source conversion, mapping, preview,
   approval, resumable batching, and verification, with TaskNotes and Obsidian
   among its source adapters;
@@ -221,10 +221,13 @@ explicitly ask it to create a disposable task; the agent should pass the v2
 context-bound request through the proposal, resolution, and apply tools in
 sequence, then verify the canonical readback.
 
-For a transcript test, supply a short transcript and ask the agent to extract
-and create its grounded action items. The agent should first call
-`nofray_get_task_extraction_contract`, keep the transcript in the client, then
-use the ordinary task discovery and proposal workflow for each intended write.
+For a transcript test, first call `nofray_get_meeting_analysis_prompt`.
+During the AI foundation delivery it reports `promptUnavailable`: the new
+analysis prompts are still being supplied. Explain that status and stop the
+extraction without inventing replacement instructions or asking the user to
+reconnect. Ordinary task creation, discovery, proposals and imports continue
+to work. When a prompt is available later, the transcript stays in the client
+and each intended write uses the ordinary authorized proposal workflow.
 
 For an import test, paste a task list or supply a small readable export, such as
 a Markdown collection, table, TaskNotes folder, or zip, and ask the agent to

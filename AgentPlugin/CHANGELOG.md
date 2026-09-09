@@ -1,11 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.7.1 - 2026-09-09
+
+- Handle deliberately unavailable meeting-analysis prompts without fallback
+  instructions or reconnect/update loops. Ordinary task management and imports
+  retain their existing contract.
+
+## 0.7.0 - 2026-09-09
 
 - Clarify that import sources may be pasted tasks, free text, or any readable
   export. TaskNotes and Obsidian conventions are optional interpretation hints.
 - Use only V2 manifest relation mappings for assignees and project links;
   `valueMappings` now covers status and priority only.
+- Replace the task-extraction contract discovery tool with the read-only
+  `nofray_get_meeting_analysis_prompt` tool. It publishes the same current
+  prompt, calculated hash/version, and small client-side examples used by the
+  native meeting preview.
 
 ## 0.6.0 - 2026-09-05
 
