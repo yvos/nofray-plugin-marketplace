@@ -57,6 +57,29 @@ same discovered `workspaceID`, `sessionID`, `generation`, `schemaDigest`, and
 `version: 1` member inside the recurrence object; that is separate from the
 v2 MCP envelope.
 
+When the live proposal tool schema advertises Inbox actions, explicit Inbox
+membership uses the same proposal/resolve/apply tools:
+`request: {"action":"addToInbox","recordType":"task","recordID":"<task ID>"}`
+or `action: "clearInbox"`, with the discovered context and no generic
+`fields`. `inboxAddedAt` remains lifecycle-only. Automatic MCP create
+admission is separate: it follows the live workspace setting and applies only
+to tasks without projects, tags, contexts or assignees.
+
+Apply returns canonical readback verified against the writer's record ID and
+revision. An error with `writeState: "committed"` and
+`verificationStatus: "unverified"` includes the known operation/record ID,
+revision and a bounded reason. Follow `recoveryAction: "repeatApply"` by
+resubmitting unchanged apply arguments: this verifies the existing receipt
+without writing again, even after generation advances. Do not create another
+record. If verification remains unavailable, inspect the returned record ID.
+Receipts are caller/session/token-bound and kept in a bounded in-memory cache
+for up to ten minutes. An already verified receipt retains evidence of the
+original operation; use get-record tools to inspect subsequent changes.
+`writeState: "unknown"` requires inspection before any retry that could
+create a record. `notAttempted` describes the current invocation only.
+New writes still reject stale generation/context with `refreshProposal`;
+discover fresh context and obtain a new server-authored preview/resolution.
+
 The live capability contract may be narrower than the raw mdbase schema. Typed
 collection fields (`aliases`, `tags`, `contexts`, `assignees`, `projects` (legacy: `projectLinks`),
 `reminders`, `methods`, and `affiliations`) do not accept `set` with `null`:

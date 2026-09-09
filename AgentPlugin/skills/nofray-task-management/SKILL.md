@@ -79,11 +79,24 @@ server-owned v2 workflow:
    and returned candidates.
 4. Call `nofray_apply_change_proposal` only for the requested mutation. Pass the
    resolution unchanged and set the required confirmation flag.
-5. Read back every applied record with `nofray_get_task`,
-   `nofray_get_project`, or `nofray_get_contact`. Report canonical fields,
+5. Inspect the canonical readback returned by apply for every applied record.
+   Use `nofray_get_task`, `nofray_get_project`, or `nofray_get_contact` for
+   subsequent current-state reads. Report canonical fields,
    unavailable-field health, lifecycle state, record revision, and the returned
    schema/capability digests. A transport success without matching readback is
    not a completed write.
+
+When `canChangeInboxMembership` is available and the live proposal tool schema
+advertises Inbox actions, explicitly add or remove a task using the same workflow with
+`request: {"action":"addToInbox","recordType":"task","recordID":"<discovered ID>"}`
+or `action: "clearInbox"`. Pass the usual discovered `context`; omit
+`fields`. NoFray owns the timestamp. Do not set the lifecycle-only
+`inboxAddedAt` field through generic mutations.
+
+Automatic Inbox placement on creation follows the live workspace setting and
+only applies to tasks without projects, tags, contexts or assignees. For an
+explicit Inbox request on a task with such values, use the lifecycle action
+after its creation has been verified.
 
 For recurrence, send the complete replacement object with its canonical
 `version: 1`, `rule`, `timing`, `anchor`, `timeZone`, and `history`. That `1`
@@ -134,3 +147,16 @@ server-authored integrity values.
   after session, generation, capability, or workspace-change errors; repeat
   discovery instead of fabricating stale values.
 - Report ambiguous duplicate candidates instead of silently overwriting one.
+- If apply reports `writeState: "committed"` with
+  `verificationStatus: "unverified"` and `recoveryAction: "repeatApply"`,
+  retain the returned record ID/revision and repeat the exact apply arguments
+  to verify the existing write. Do not make a new create proposal or operation
+  ID. If verification still fails, report the known write and unresolved
+  verification separately and inspect the record by ID.
+- `writeState: "unknown"` does not mean that nothing was written. Follow
+  `inspectRecord` before another create. A stale/context error with
+  `refreshProposal` means this invocation did not attempt a write; it does not
+  prove an earlier invocation failed to write. Receipts use a bounded,
+  session-bound in-memory cache and expire after ten minutes. Missing/expired
+  receipts and restarts require
+  canonical inspection before a new create.

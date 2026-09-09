@@ -1,6 +1,6 @@
 {
   "name": "nofray",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Manage NoFray tasks with the live v2 contract, discover meeting-prompt availability, and safely run external-data imports.",
   "author": {
     "name": "NoFray"

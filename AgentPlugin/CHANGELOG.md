@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.2 - 2026-09-09
+
+- Document explicit Inbox add/clear actions through the proposal workflow when
+  the connected NoFray runtime advertises them in its live tool schema.
+- Distinguish committed writes with pending verification from unknown outcomes,
+  and explain how to repeat apply safely using the original arguments.
+- Use apply's canonical receipt as write evidence and get-record tools for
+  subsequent current-state reads. Clarify bounded receipt lifetime and stale
+  context recovery.
+
 ## 0.7.1 - 2026-09-09
 
 - Handle deliberately unavailable meeting-analysis prompts without fallback
