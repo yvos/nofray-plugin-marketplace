@@ -1,7 +1,7 @@
 {
   "name": "nofray",
-  "version": "0.7.3",
-  "description": "Manage NoFray tasks with the live v2 contract, discover meeting-prompt availability, and safely run external-data imports.",
+  "version": "0.7.4",
+  "description": "Manage NoFray tasks with the live v2 contract, discover meeting prompts, and safely run external-data imports.",
   "author": {
     "name": "NoFray"
   },
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "NoFray",
     "shortDescription": "Manage tasks, transcripts, and imports in NoFray",
-    "longDescription": "Use NoFray to manage tasks through its v2 proposal workflow and run external-data imports. Meeting extraction uses the discovered NoFray prompt when available; replacement prompts are currently pending.",
+    "longDescription": "Use NoFray to manage tasks through its v2 proposal workflow and run external-data imports. Meeting extraction uses the discovered, versioned NoFray generation prompt; saved-minute validation uses its separate versioned prompt.",
     "developerName": "NoFray",
     "category": "Productivity",
     "capabilities": [

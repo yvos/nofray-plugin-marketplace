@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.4 - 2026-09-10
+
+- Publish versioned generation and saved-minutes validation prompts through
+  `nofray_get_meeting_analysis_prompt`, including their hashes and wire
+  contracts. The transcript remains client-side and the prompt tool remains
+  read-only.
+
 ## 0.7.3 - 2026-09-10
 
 - Require action-specific live capabilities before proposing a mutation;

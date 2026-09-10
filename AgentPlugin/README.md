@@ -253,12 +253,11 @@ context-bound request through the proposal, resolution, and apply tools in
 sequence, then verify the canonical readback.
 
 For a transcript test, first call `nofray_get_meeting_analysis_prompt`.
-During the AI foundation delivery it reports `promptUnavailable`: the new
-analysis prompts are still being supplied. Explain that status and stop the
-extraction without inventing replacement instructions or asking the user to
-reconnect. Ordinary task creation, discovery, proposals and imports continue
-to work. When a prompt is available later, the transcript stays in the client
-and each intended write uses the ordinary authorized proposal workflow.
+The response supplies the current generation and validation prompt text,
+version, SHA-256 hash, and input/output contracts. Keep the transcript in the
+client, follow the generation contract for a read-only preview, and use the
+validation prompt only for the saved-minutes working-copy route. Each intended
+write still uses the ordinary authorized proposal workflow.
 
 For an import test, paste a task list or supply a small readable export, such as
 a Markdown collection, table, TaskNotes folder, or zip, and ask the agent to
