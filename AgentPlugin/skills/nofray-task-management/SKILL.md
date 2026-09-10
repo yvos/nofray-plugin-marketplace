@@ -18,6 +18,14 @@ There is no legacy mutation fallback. If a required capability is absent,
 report that the requested mutation is unavailable instead of guessing a field
 shape.
 
+Check the action-specific `capabilities` as well as the feature capabilities
+before proposing a write. They describe the available MCP routes and current
+workspace permissions. Schema field presence alone does not grant permission.
+When `canComplete` is false, report completion as unavailable; do not bypass
+the missing lifecycle route by setting a completed status through generic
+fields. A compound change set also requires the corresponding project/contact
+creation and relation permissions for each requested operation.
+
 ## Extract tasks from a transcript
 
 When the user supplies a transcript and asks to turn actionable commitments into

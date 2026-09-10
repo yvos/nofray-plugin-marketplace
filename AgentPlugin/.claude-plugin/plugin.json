@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "nofray",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Manage NoFray tasks with the live v2 contract, discover meeting-prompt availability, and safely run external-data imports.",
   "author": {
     "name": "NoFray"

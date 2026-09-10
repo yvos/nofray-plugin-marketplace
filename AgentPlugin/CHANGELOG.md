@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.3 - 2026-09-10
+
+- Require action-specific live capabilities before proposing a mutation;
+  schema fields alone do not grant write or lifecycle permission.
+- Respect unavailable completion actions and check project/contact and relation
+  permissions separately for compound changes.
+
 ## 0.7.2 - 2026-09-09
 
 - Document explicit Inbox add/clear actions through the proposal workflow when

@@ -41,6 +41,14 @@ resolves relations. The client uses the schemas returned by
 `nofray_get_workspace_configuration`. The plugin does not fall back to a
 legacy request envelope when a capability is absent.
 
+Also check the action-specific `capabilities` returned by discovery. They
+describe the implemented MCP routes admitted by the current workspace.
+A field in the schema does not grant write permission or expose its lifecycle
+operation. When `canComplete` is false, report completion as unavailable;
+setting a completed status manually does not substitute for the completion-date
+and recurrence lifecycle. For a change set, check the permissions for each
+project/contact create and each relation change as well as the task operation.
+
 Mutation field operations are exact and sparse:
 
 ```json
