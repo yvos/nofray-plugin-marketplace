@@ -104,10 +104,13 @@ or `action: "clearInbox"`. Pass the usual discovered `context`; omit
 `fields`. NoFray owns the timestamp. Do not set the lifecycle-only
 `inboxAddedAt` field through generic mutations.
 
-Automatic Inbox placement on creation follows the live workspace setting and
-only applies to tasks without projects, tags, contexts or assignees. For an
-explicit Inbox request on a task with such values, use the lifecycle action
-after its creation has been verified.
+Automatic Inbox placement on creation follows the live workspace setting. When
+enabled, every new MCP task enters the Inbox, regardless of projects, tags,
+contexts or assignees, including change-set creates. Updates and duplicate reuse
+do not automatically enter the Inbox. For an explicit Inbox request, check the
+verified canonical readback and use the lifecycle action if membership is absent
+(for example, when automatic placement is disabled or the app version predates
+this behavior).
 
 For recurrence, send the complete replacement object with its canonical
 `version: 1`, `rule`, `timing`, `anchor`, `timeZone`, and `history`. That `1`

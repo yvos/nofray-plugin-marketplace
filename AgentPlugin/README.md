@@ -70,8 +70,10 @@ membership uses the same proposal/resolve/apply tools:
 `request: {"action":"addToInbox","recordType":"task","recordID":"<task ID>"}`
 or `action: "clearInbox"`, with the discovered context and no generic
 `fields`. `inboxAddedAt` remains lifecycle-only. Automatic MCP create
-admission is separate: it follows the live workspace setting and applies only
-to tasks without projects, tags, contexts or assignees.
+admission is separate: when enabled in the live workspace settings, every new
+MCP task enters the Inbox, including tasks with projects, tags, contexts or
+assignees and tasks created through a change set. Check canonical readback for
+membership; updates and duplicate reuse do not automatically enter the Inbox.
 
 Apply returns canonical readback verified against the writer's record ID and
 revision. An error with `writeState: "committed"` and
