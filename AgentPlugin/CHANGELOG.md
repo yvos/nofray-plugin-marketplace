@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.6 - 2026-09-29
+
+- Follow the current two-stage compact meeting generation descriptors; raw facts
+  are not task writes or import records. Saved-minutes validation returns findings.
+
 ## 0.7.4 - 2026-09-10
 
 - Publish versioned generation and saved-minutes validation prompts through

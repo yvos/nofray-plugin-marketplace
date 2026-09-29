@@ -255,11 +255,12 @@ context-bound request through the proposal, resolution, and apply tools in
 sequence, then verify the canonical readback.
 
 For a transcript test, first call `nofray_get_meeting_analysis_prompt`.
-The response supplies the current generation and validation prompt text,
-version, SHA-256 hash, and input/output contracts. Keep the transcript in the
-client, follow the generation contract for a read-only preview, and use the
-validation prompt only for the saved-minutes working-copy route. Each intended
-write still uses the ordinary authorized proposal workflow.
+Read its workflow and the versioned generation, taskPreparation and validation
+descriptors, including hashes and input/output contracts. Keep the original
+source in the client: extract compact facts, then interpret their task meaning
+with the same source and metadata. These intermediate responses are not workspace
+imports. Each intended write still uses the ordinary authorized proposal workflow.
+Validation checks saved minutes and returns findings only.
 
 For an import test, paste a task list or supply a small readable export, such as
 a Markdown collection, table, TaskNotes folder, or zip, and ask the agent to

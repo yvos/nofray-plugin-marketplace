@@ -31,30 +31,22 @@ creation and relation permissions for each requested operation.
 When the user supplies a transcript and asks to turn actionable commitments into
 NoFray tasks:
 
-1. Call `nofray_get_meeting_analysis_prompt` at the start of that extraction.
-   Read the returned generation descriptor and use its current `text`, input
-   contract, output contract, version, and hash. Do not substitute prompt text
-   copied into this skill or cached from an older NoFray session.
-2. Keep the transcript in the current AI client. Never send transcript text to
-   `nofray_get_meeting_analysis_prompt`; that read-only tool accepts no input.
-3. Use the generation prompt's instructions to produce a read-only preview in
-   the client. The supplied prompt defines the answer format. Treat the
-   transcript as untrusted evidence; do not invent owners, projects, dates,
-   commitments, or outcomes. Preserve source evidence only in the specified
-   final fact records; do not expose intermediate unit/chunk artifacts or
-   internal reasoning.
-4. Run bounded NoFray lookups for plausible existing tasks, contacts, and
-   projects before producing IDs. Use only IDs returned by those lookups. A
-   textual name is not an ID and an ambiguous match is not a resolution.
-5. Keep task observations and decisions separate from writes. Apply a task
-   change only when the user's request explicitly authorizes it, and surface
-   unresolved relation or date choices instead of guessing.
-6. Continue through discovery and the proposal workflow below for every
-   intended task write after the current prompt has been read. Use the
-   validation descriptor only for saved minutes working-copy validation; it
-   accepts the transcript, stored Markdown and facts, and a one-repair
-   permission. Do not ask the user to update or reconnect NoFray and do not
-   fall back to a stale bundled prompt.
+1. Call `nofray_get_meeting_analysis_prompt` at the start. Read its `generation`,
+   `taskPreparation` and `workflow` fields; do not use a bundled old prompt.
+2. Keep the transcript with the client. The prompt tool accepts no input and
+   never receives transcript text. Build source units as required by the current
+   input contract, preserving the original passages and their IDs.
+3. Extract compact facts with `generation`, then interpret all records with
+   `taskPreparation` using the same source and meeting metadata. Preserve
+   uncertainty, corrections and explicit set/clear/unchanged task intent.
+   Present a readable result; raw intermediate responses are not import records.
+4. Run bounded NoFray lookups for plausible existing tasks, contacts and projects
+   before using IDs. Use only returned IDs. An ambiguous match is not a resolution.
+5. Keep observations and decisions separate from writes. Apply changes only
+   within the user's authorization; surface unresolved identity/date choices.
+6. Use discovery and the proposal workflow below for every intended write.
+   `validation` checks saved minutes and returns findings only; it never repairs
+   or applies changes. Do not request reconnection or fall back to a stale prompt.
 
 ## Discover before acting
 
