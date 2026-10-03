@@ -9,8 +9,9 @@ plugin combines:
 - a focused task-management skill that recognizes tasks, action items, actions, todos,
   follow-ups, next steps, work items, reminders, taken, actiepunten, acties,
   vervolgacties, vervolgstappen, werkpunten, and herinneringen;
-- a read-only meeting-analysis prompt tool, so the client uses the same
-  system prompt as NoFray without uploading the transcript to MCP;
+- a client-side transcript workflow: source-grounded task intent stays with the
+  client while NoFray provides canonical task discovery, review and the
+  proposal/apply/read-back route;
 - a generic import skill for scoped source conversion, mapping, preview,
   approval, resumable batching, and verification, with TaskNotes and Obsidian
   among its source adapters;
@@ -254,13 +255,12 @@ explicitly ask it to create a disposable task; the agent should pass the v2
 context-bound request through the proposal, resolution, and apply tools in
 sequence, then verify the canonical readback.
 
-For a transcript test, first call `nofray_get_meeting_analysis_prompt`.
-Read its workflow and the versioned generation, taskPreparation and validation
-descriptors, including hashes and input/output contracts. Keep the original
-source in the client: extract compact facts, then interpret their task meaning
-with the same source and metadata. These intermediate responses are not workspace
-imports. Each intended write still uses the ordinary authorized proposal workflow.
-Validation checks saved minutes and returns findings only.
+For a transcript-derived task test, keep the original source and its
+interpretation in the client. Extract source-grounded actionable intent and
+explicit existing-task changes there, preserving source references and
+uncertainty. Use NoFray only for canonical task/project/contact discovery and
+the authorized proposal, resolve, apply and read-back workflow. The MCP surface
+does not accept transcript text or generate meeting minutes.
 
 For an import test, paste a task list or supply a small readable export, such as
 a Markdown collection, table, TaskNotes folder, or zip, and ask the agent to

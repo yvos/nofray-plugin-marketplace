@@ -31,22 +31,22 @@ creation and relation permissions for each requested operation.
 When the user supplies a transcript and asks to turn actionable commitments into
 NoFray tasks:
 
-1. Call `nofray_get_meeting_analysis_prompt` at the start. Read its `generation`,
-   `taskPreparation` and `workflow` fields; do not use a bundled old prompt.
-2. Keep the transcript with the client. The prompt tool accepts no input and
-   never receives transcript text. Build source units as required by the current
-   input contract, preserving the original passages and their IDs.
-3. Extract compact facts with `generation`, then interpret all records with
-   `taskPreparation` using the same source and meeting metadata. Preserve
-   uncertainty, corrections and explicit set/clear/unchanged task intent.
-   Present a readable result; raw intermediate responses are not import records.
-4. Run bounded NoFray lookups for plausible existing tasks, contacts and projects
-   before using IDs. Use only returned IDs. An ambiguous match is not a resolution.
-5. Keep observations and decisions separate from writes. Apply changes only
-   within the user's authorization; surface unresolved identity/date choices.
-6. Use discovery and the proposal workflow below for every intended write.
-   `validation` checks saved minutes and returns findings only; it never repairs
-   or applies changes. Do not request reconnection or fall back to a stale prompt.
+1. Keep the transcript and its interpretation with the client. Identify explicit
+   commitments, decisions, existing-task changes and uncertainty from the
+   original passages, preserving their source references. Do not upload
+   transcript text to MCP or ask NoFray to generate meeting minutes.
+2. For each candidate, form a source-grounded intent with a proposed title,
+   explicit owner or date when present, a source reference, and create/update/
+   clear/unchanged intent. Keep discussion facts and decisions separate from
+   actionable work; do not infer an assignment from general discussion.
+3. Run bounded NoFray lookups for plausible existing tasks, contacts and
+   projects before using IDs. Use only returned IDs. An ambiguous match is not a
+   resolution.
+4. Keep observations and unresolved identity/date choices visible. Apply changes
+   only within the user's authorization.
+5. Use discovery and the proposal workflow below for every intended write. NoFray
+   owns canonical task discovery, review, mutation and read-back; the client
+   owns transcript interpretation and any presentation of the source context.
 
 ## Discover before acting
 
