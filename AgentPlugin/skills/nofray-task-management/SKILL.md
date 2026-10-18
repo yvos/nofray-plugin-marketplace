@@ -48,6 +48,37 @@ NoFray tasks:
    owns canonical task discovery, review, mutation and read-back; the client
    owns transcript interpretation and any presentation of the source context.
 
+## Read meetings and their tasks
+
+When the user asks what happened in a meeting, which tasks belong to it, or
+asks to turn those tasks into another result, use the read-only meeting routes
+when discovery advertises `meetingRead`:
+
+1. Call `nofray_search_meetings` with the narrowest useful title, date range, or
+   participant filter. Keep the returned meeting ID and match evidence.
+2. Call `nofray_get_meeting` with that ID. Its default scope is `meetingOnly`;
+   request `scope: "series"` only when the user asks for a recurring series.
+   State `status` (`openAndCompleted`, `openOnly`, or `completedOnly`) and
+   `archive` (`includeAll`, `activeOnly`, or `archivedOnly`) when the question
+   depends on completion or archive state. Do not assume an active-only list.
+3. Use the returned current task projection and `linkedMeetings`/provenance to
+   build the requested briefing or other derived answer. Read each task with
+   `nofray_get_task` when more task detail is needed; never replace a missing
+   task with a title guess.
+4. Call `nofray_get_meeting_document` only for a required body. Pass exactly one
+   role (`current`, `preparation`, `notes`, `minutesDraft`, or `draft`) or one
+   immutable `documentID` for a historical `minutesVersion`, `sourceAnalysis`,
+   or `sourceSnapshot`. Those roles require a concrete document ID. Follow its
+   revision-bound cursor for a large body and keep the response context.
+
+Preparation is background, own notes and an explicitly selected transcript are
+sources, minutes are output, and immutable history is evidence. Transcript
+responses are metadata-only. Preserve `missingTaskIDs`, omitted coverage,
+stale-context errors, and document revisions in the answer instead of filling
+gaps from other meetings or arbitrary files. Meeting reads do not authorize
+meeting-document writes; task changes still use the proposal, resolution,
+apply, and canonical readback workflow below.
+
 ## Discover before acting
 
 1. Call `nofray_get_workspace_configuration` before every mutation session for
@@ -59,9 +90,9 @@ NoFray tasks:
    find possible duplicates. Use `nofray_get_task` when the exact record must be
    inspected.
 4. Use the project and contact search/get tools when a task refers to either.
-   Keep relation candidates scoped to their target record type. Stable IDs and
-   sealed source-reference bindings may resolve mechanically; title, alias,
-   path, basename, and fuzzy matches require an explicit choice.
+   Keep relation candidates scoped to their target record type. Stable IDs may
+   resolve mechanically; title, alias, path, basename, and fuzzy matches require
+   an explicit choice.
 
 Do not write when the user only asked to search, inspect, summarize, or explain.
 

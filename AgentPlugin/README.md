@@ -1,22 +1,19 @@
 # NoFray Agent Plugin
 
-Use NoFray from a compatible AI agent to manage actionable work, extract
-grounded tasks from client-held transcripts, and import external task data
-through a single confirmed plan. The
-plugin combines:
+Use NoFray from a compatible AI agent to manage actionable work and extract
+grounded tasks from client-held transcripts. The plugin combines:
 
 - the local NoFray MCP server at `http://127.0.0.1:7341/mcp`;
+- read-only meeting search, meeting bundles, and bounded meeting-document
+  reads through `nofray_search_meetings`, `nofray_get_meeting`, and
+  `nofray_get_meeting_document`;
 - a focused task-management skill that recognizes tasks, action items, actions, todos,
   follow-ups, next steps, work items, reminders, taken, actiepunten, acties,
   vervolgacties, vervolgstappen, werkpunten, and herinneringen;
 - a client-side transcript workflow: source-grounded task intent stays with the
   client while NoFray provides canonical task discovery, review and the
   proposal/apply/read-back route;
-- a generic import skill for scoped source conversion, mapping, preview,
-  approval, resumable batching, and verification, with TaskNotes and Obsidian
-  among its source adapters;
-- the v2 NoFray proposal workflow for ordinary writes and the canonical v2
-  import workflow.
+- the v2 NoFray proposal workflow for ordinary writes.
 
 Codex surfaces use the bundled NoFray logo and brand color from the native
 `.codex-plugin` presentation manifest. These visual assets do not alter skill
@@ -34,13 +31,20 @@ plugin. NoFray and the AI client must run on the same Mac.
 
 ## Contract version
 
-This release uses the v2 MCP and import contract as its only regular mutation
-and import surface. A client must discover the mounted workspace before every
-mutation session and require the live `recordMutationContractV2` and
+This release uses the v2 MCP contract for its mutation surface. A client must
+discover the mounted workspace before every mutation session and require the
+live `recordMutationContractV2` and
 `recordMutationV2` capabilities, plus `recordReferenceCandidatesV2` when it
 resolves relations. The client uses the schemas returned by
 `nofray_get_workspace_configuration`. The plugin does not fall back to a
 legacy request envelope when a capability is absent.
+
+When live discovery advertises `meetingRead`, meeting questions use the three
+read-only meeting routes. Search first, read one meeting with `meetingOnly` as
+the default scope, and fetch a named document only when its role or document
+ID is known. The response context and coverage belong to one workspace
+generation. Transcript results contain metadata and availability; they do not
+expose transcript bodies.
 
 Also check the action-specific `capabilities` returned by discovery. They
 describe the implemented MCP routes admitted by the current workspace.
@@ -91,7 +95,8 @@ create a record. `notAttempted` describes the current invocation only.
 New writes still reject stale generation/context with `refreshProposal`;
 discover fresh context and obtain a new server-authored preview/resolution.
 
-The live capability contract may be narrower than the raw mdbase schema. Typed
+The live capability contract may be narrower than the app-owned record
+contract. Typed
 collection fields (`aliases`, `tags`, `contexts`, `assignees`, `projects` (legacy: `projectLinks`),
 `reminders`, `methods`, and `affiliations`) do not accept `set` with `null`:
 use `set` with an empty array for an empty collection or `clear` to remove the
@@ -102,44 +107,6 @@ Projects can expose `tags`, `scheduled`, and `due`, while contacts can expose
 `tags`; their availability and exact schema are returned by discovery. A
 missing named field reported in `unavailableFields` is a source-health warning,
 not an authored empty value, and must remain visible until an explicit repair.
-
-Import previews use a version 2 translation manifest. Every observed source
-field must occur once in `fieldDispositions` as `direct`, `transformed`,
-`metadataOnly`, or `omitted`. Relationship decisions go in
-`relationMappings` with an owner reference, source token, target record type,
-and an explicit `existingRecordID`, `uploadedSourceReference`, `ambiguous`,
-`unresolved`, or `wrongType` resolution. Fetch all preview sections:
-`records`, `diagnostics`, `fieldDispositions`, and `relationResolutions`.
-Apply only the newest server preview after user approval; a changed manifest
-creates a new preview and plan hash.
-
-`translationManifest.sourceInventory` is required in every import preview. It
-is a client-declared pre-conversion array of `TaskNotesImportObservedField`
-objects, each carrying `sourceField`, `recordType`, `valueShape`,
-`observedRecordCount`, and `observedValueCount`. The field disposition ledger
-must cover that inventory exactly once. The uploaded canonical records remain
-separate target inputs containing only `{sourceReference, recordType, markdown}`;
-their fields are validated against the live target schema. For example, a
-source `foo` transformed to canonical `due`, and an approved omission of
-source `approved`, remain visible in the inventory and ledger even though the
-canonical Markdown needs only `due` (and any explicitly preserved metadata):
-
-```json
-{
-  "version": 2,
-  "sourceInventory": [
-    {"sourceField": "title", "recordType": "task", "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1},
-    {"sourceField": "foo", "recordType": "task", "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1},
-    {"sourceField": "approved", "recordType": "task", "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1}
-  ],
-  "fieldDispositions": [
-    {"ledgerID": "task:title", "sourceField": "title", "sourceRecordTypes": ["task"], "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1, "disposition": "direct", "targets": [{"recordType": "task", "field": "title"}], "decisionStatus": "exact"},
-    {"ledgerID": "task:foo", "sourceField": "foo", "sourceRecordTypes": ["task"], "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1, "disposition": "transformed", "targets": [{"recordType": "task", "field": "due"}], "transformation": {"summary": "Map foo to canonical due", "sourceFields": ["foo"]}, "decisionStatus": "approved"},
-    {"ledgerID": "task:approved", "sourceField": "approved", "sourceRecordTypes": ["task"], "valueShape": "scalar", "observedRecordCount": 1, "observedValueCount": 1, "disposition": "omitted", "targets": [], "decisionStatus": "approved"}
-  ],
-  "relationMappings": []
-}
-```
 
 When discovery also advertises `recordMutationChangeSetV2`, the same proposal
 tools accept `request.action: "changeSet"` for exactly one Task operation
@@ -262,17 +229,16 @@ uncertainty. Use NoFray only for canonical task/project/contact discovery and
 the authorized proposal, resolve, apply and read-back workflow. The MCP surface
 does not accept transcript text or generate meeting minutes.
 
-For an import test, paste a task list or supply a small readable export, such as
-a Markdown collection, table, TaskNotes folder, or zip, and ask the agent to
-preview it. No source schema or Obsidian metadata is required. The agent should limit source discovery
-to the requested records and approved dependencies, show a complete conversion
-ledger with a v2 translation manifest and explicit relation mappings, and wait
-for approval before applying the server-authored confirmation value.
-Assignees and project links use the manifest's explicit typed resolutions;
-`valueMappings` admits only status and priority. Equal project titles are valid
-when their identities differ.
-Interrupted imports can resume by querying
-`nofray_get_import_status`.
+For a meeting-read test, ask:
+
+> Find the meeting about quarterly planning and list its current open and
+> completed tasks.
+
+The agent should call `nofray_search_meetings`, use the returned meeting ID in
+`nofray_get_meeting` with an explicit task filter when needed, and preserve
+`missingTaskIDs`, document coverage, provenance, and the response context. To
+read a body, it should call `nofray_get_meeting_document` with exactly one role
+or document ID and follow a revision-bound cursor for large content.
 
 ## Authentication
 
@@ -398,9 +364,7 @@ AgentPlugin/
 ├── README.md
 ├── CHANGELOG.md
 └── skills/
-    ├── nofray-task-management/
-    │   └── SKILL.md
-    └── nofray-import/
+    └── nofray-task-management/
         └── SKILL.md
 ```
 

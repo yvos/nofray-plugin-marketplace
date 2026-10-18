@@ -1,7 +1,7 @@
 {
   "name": "nofray",
-  "version": "0.7.6",
-  "description": "Manage NoFray tasks with the live v2 contract, discover meeting prompts, and safely run external-data imports.",
+  "version": "0.7.7",
+  "description": "Manage NoFray tasks and read meeting context through the live v2 contract.",
   "author": {
     "name": "NoFray"
   },
@@ -11,9 +11,6 @@
     "tasks",
     "action-items",
     "transcripts",
-    "tasknotes",
-    "obsidian",
-    "import",
     "todos",
     "productivity",
     "mcp"
@@ -22,8 +19,8 @@
   "mcpServers": "./mcp.json",
   "interface": {
     "displayName": "NoFray",
-    "shortDescription": "Manage tasks, transcripts, and imports in NoFray",
-    "longDescription": "Use NoFray to manage tasks through its v2 proposal workflow and run external-data imports. Meeting extraction uses the discovered, versioned NoFray generation prompt; saved-minute validation uses its separate versioned prompt.",
+    "shortDescription": "Manage tasks and meetings in NoFray",
+    "longDescription": "Use NoFray to manage tasks through its v2 proposal workflow and read meeting context through its snapshot-bound search and document routes.",
     "developerName": "NoFray",
     "category": "Productivity",
     "capabilities": [
@@ -32,8 +29,7 @@
     ],
     "websiteURL": "https://github.com/yvos/nofray-plugin-marketplace",
     "defaultPrompt": [
-      "Show my open action items in NoFray.",
-      "Preview an external task-data import into my NoFray workspace."
+      "Show my open action items in NoFray."
     ],
     "brandColor": "#EB6708",
     "logo": "./assets/logo.svg",

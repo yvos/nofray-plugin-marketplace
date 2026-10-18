@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased - 2026-10-18
+
+- Retire the canonical task, project, and contact import route. The plugin now
+  exposes ordinary task management and meeting-read workflows; the import skill
+  and import tools are no longer part of the package.
+- Add the read-only `nofray_search_meetings`, `nofray_get_meeting`, and
+  `nofray_get_meeting_document` routes with snapshot context, explicit meeting
+  scope/task filters, bounded document bodies, and metadata-only transcript
+  references.
+- Remove the obsolete `nofray_get_meeting_metadata` route. Meeting and task
+  reads use the live NoFray app contract; external MDBase files are not runtime
+  authority.
+
 ## 0.7.6 - 2026-09-29
 
 - Follow the current two-stage compact meeting generation descriptors; raw facts
