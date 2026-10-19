@@ -48,10 +48,13 @@ expose transcript bodies.
 
 Also check the action-specific `capabilities` returned by discovery. They
 describe the implemented MCP routes admitted by the current workspace.
-A field in the schema does not grant write permission or expose its lifecycle
-operation. When `canComplete` is false, report completion as unavailable;
-setting a completed status manually does not substitute for the completion-date
-and recurrence lifecycle. For a change set, check the permissions for each
+A field in the schema does not grant write permission. Complete or reopen a task
+through the existing `updateRecord` route by setting its configured status;
+check `canComplete`, `canEdit` and the live field contract. NoFray derives the
+completion date, advances recurrence and synchronizes linked minutes checkboxes.
+Send the requested status and report the canonical result, which may be the
+active next occurrence. Preserve typed lifecycle restrictions.
+For a change set, check the permissions for each
 project/contact create and each relation change as well as the task operation.
 
 Mutation field operations are exact and sparse:
@@ -344,8 +347,8 @@ NoFray writes use the v2 request and require all three server-owned steps:
 The agent must pass server-authored IDs, generations, hashes, and resolutions
 unchanged, together with the discovered workspace/session and schema and
 capability digests. It must also use canonical status and priority IDs returned
-by `nofray_list_field_values`, and verify each applied record with its canonical
-get tool.
+by `nofray_list_field_values`, and verify each applied record using apply's canonical
+readback. Use get-record tools only for missing evidence or later current-state reads.
 
 ## Package layout
 

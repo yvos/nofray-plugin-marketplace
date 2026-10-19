@@ -21,10 +21,16 @@ shape.
 Check the action-specific `capabilities` as well as the feature capabilities
 before proposing a write. They describe the available MCP routes and current
 workspace permissions. Schema field presence alone does not grant permission.
-When `canComplete` is false, report completion as unavailable; do not bypass
-the missing lifecycle route by setting a completed status through generic
-fields. A compound change set also requires the corresponding project/contact
-creation and relation permissions for each requested operation.
+Complete or reopen a task through `updateRecord` by setting its configured
+status. Check `canComplete` for transitions into or out of completion as well as
+`canEdit` and the live status field contract. NoFray owns completion dates,
+recurrence advancement and linked minutes checkbox synchronization. Send only
+the requested fields; do not calculate dates, recurrence history or companion
+checkbox edits. A recurring completion may return the active next occurrence;
+report the canonical apply result. Preserve typed lifecycle errors rather than
+working around restrictions. A compound change set also requires
+the corresponding project/contact creation and relation permissions for each
+requested operation.
 
 ## Extract tasks from a transcript
 
@@ -63,8 +69,10 @@ when discovery advertises `meetingRead`:
    depends on completion or archive state. Do not assume an active-only list.
 3. Use the returned current task projection and `linkedMeetings`/provenance to
    build the requested briefing or other derived answer. Read each task with
-   `nofray_get_task` when more task detail is needed; never replace a missing
-   task with a title guess.
+   `nofray_get_task` only for missing fields, full task descriptions, or a required
+   later current-state check. Status comparisons can use the bundle's canonical
+   task fields directly; exporting full descriptions may require individual reads.
+   Never replace a missing task with a title guess.
 4. Call `nofray_get_meeting_document` only for a required body. Pass exactly one
    role (`current`, `preparation`, `notes`, `minutesDraft`, or `draft`) or one
    immutable `documentID` for a historical `minutesVersion`, `sourceAnalysis`,
@@ -85,16 +93,24 @@ apply, and canonical readback workflow below.
    workspace context, the live schemas, `recordMutationContractV2`, and the
    context values bound to the request.
 2. Before setting status or priority, call `nofray_list_field_values` and pass
-   the returned canonical IDs unchanged.
-3. Before creating or updating actionable work, call `nofray_search_tasks` to
-   find possible duplicates. Use `nofray_get_task` when the exact record must be
-   inspected.
+   the returned canonical IDs unchanged. Reuse those discovered values within
+   the same mutation session unless the workspace or relevant configuration changes.
+3. Before creating actionable work or identifying an update target, use bounded
+   `nofray_search_tasks` to find possible duplicates. An update to an exact task ID
+   already returned by NoFray does not need another broad duplicate search.
+   Use `nofray_get_task` only when the required record fields are missing.
 4. Use the project and contact search/get tools when a task refers to either.
    Keep relation candidates scoped to their target record type. Stable IDs may
    resolve mechanically; title, alias, path, basename, and fuzzy matches require
    an explicit choice.
 
 Do not write when the user only asked to search, inspect, summarize, or explain.
+
+Reuse sufficient read results within the current operation. Parallelize independent
+reads when useful, but serialize writes against their admitted context. A successful
+write can advance the generation: discover fresh context before the next proposal,
+and refresh after typed stale-context errors. Never increment a generation yourself
+or reuse an old receipt as current workspace context.
 
 ## Apply requested changes safely
 
@@ -114,6 +130,8 @@ server-owned v2 workflow:
 4. Call `nofray_apply_change_proposal` only for the requested mutation. Pass the
    resolution unchanged and set the required confirmation flag.
 5. Inspect the canonical readback returned by apply for every applied record.
+   A verified matching readback completes this write's verification; do not add
+   an automatic get-record call solely to verify it again.
    Use `nofray_get_task`, `nofray_get_project`, or `nofray_get_contact` for
    subsequent current-state reads. Report canonical fields,
    unavailable-field health, lifecycle state, record revision, and the returned

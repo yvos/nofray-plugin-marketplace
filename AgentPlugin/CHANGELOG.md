@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.8 - 2026-10-19
+
+- Complete and reopen through the existing status update route. NoFray owns
+  completion dates, recurring occurrences and linked minutes checkboxes; clients
+  report the canonical result and respect live completion authority.
+- Reuse sufficient meeting/task reads, discovered field values and verified apply
+  readback. Refresh mutation context after writes without repeating broad target searches.
+
 ## Unreleased - 2026-10-18
 
 - Retire the canonical task, project, and contact import route. The plugin now
