@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased - 2026-10-20
+## 0.7.9 - 2026-10-20
 
 - Query native task lists and exact field subsets with snapshot-bound pagination
   and coverage; reuse shared field meanings and enabled enum values.
@@ -8,17 +8,6 @@
   confirmed V2 proposal workflow and NoFray lifecycle services.
 - Distinguish verified deletion from unavailable canonical readback; exact retries
   verify the original operation without repeating its write.
-
-## 0.7.8 - 2026-10-19
-
-- Complete and reopen through the existing status update route. NoFray owns
-  completion dates, recurring occurrences and linked minutes checkboxes; clients
-  report the canonical result and respect live completion authority.
-- Reuse sufficient meeting/task reads, discovered field values and verified apply
-  readback. Refresh mutation context after writes without repeating broad target searches.
-
-## Unreleased - 2026-10-18
-
 - Retire the canonical task, project, and contact import route. The plugin now
   exposes ordinary task management and meeting-read workflows; the import skill
   and import tools are no longer part of the package.
@@ -29,6 +18,14 @@
 - Remove the obsolete `nofray_get_meeting_metadata` route. Meeting and task
   reads use the live NoFray app contract; external MDBase files are not runtime
   authority.
+
+## 0.7.8 - 2026-10-19
+
+- Complete and reopen through the existing status update route. NoFray owns
+  completion dates, recurring occurrences and linked minutes checkboxes; clients
+  report the canonical result and respect live completion authority.
+- Reuse sufficient meeting/task reads, discovered field values and verified apply
+  readback. Refresh mutation context after writes without repeating broad target searches.
 
 ## 0.7.6 - 2026-09-29
 

@@ -1,6 +1,6 @@
 {
   "name": "nofray",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "description": "Manage NoFray tasks and read meeting context through the live v2 contract.",
   "author": {
     "name": "NoFray"
