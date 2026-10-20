@@ -22,6 +22,13 @@ activation or MCP behavior.
 Because the MCP server runs inside the NoFray macOS app, this is a desktop-only
 plugin. NoFray and the AI client must run on the same Mac.
 
+The live task search can select native lists, completion/archive state and exact
+field values while returning query coverage. Archive, restore and delete use
+`archiveRecord`, `unarchiveRecord` and `deleteRecord` through the existing V2
+proposal tools when advertised. NoFray's application services own their effects
+and reference safety. Discovery exposes the shared task-field information;
+clients may reuse sufficient enum IDs rather than rediscovering them per task.
+
 ## Requirements
 
 - NoFray installed on macOS.

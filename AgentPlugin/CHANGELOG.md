@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased - 2026-10-20
+
+- Query native task lists and exact field subsets with snapshot-bound pagination
+  and coverage; reuse shared field meanings and enabled enum values.
+- Archive, restore and delete tasks, projects and contacts through the existing
+  confirmed V2 proposal workflow and NoFray lifecycle services.
+- Distinguish verified deletion from unavailable canonical readback; exact retries
+  verify the original operation without repeating its write.
+
 ## 0.7.8 - 2026-10-19
 
 - Complete and reopen through the existing status update route. NoFray owns

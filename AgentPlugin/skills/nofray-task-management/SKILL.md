@@ -92,9 +92,11 @@ apply, and canonical readback workflow below.
 1. Call `nofray_get_workspace_configuration` before every mutation session for
    workspace context, the live schemas, `recordMutationContractV2`, and the
    context values bound to the request.
-2. Before setting status or priority, call `nofray_list_field_values` and pass
-   the returned canonical IDs unchanged. Reuse those discovered values within
-   the same mutation session unless the workspace or relevant configuration changes.
+2. Reuse canonical status/priority IDs from discovery's `taskFieldInformation`
+   when sufficient; otherwise call `nofray_list_field_values`. Both describe the
+   same effective catalog. `isEnabled` guides new suggestions; hidden values
+   remain readable/filterable and hiding does not grant or revoke write rights.
+   Pass canonical IDs unchanged and reuse them until workspace/configuration changes.
 3. Before creating actionable work or identifying an update target, use bounded
    `nofray_search_tasks` to find possible duplicates. An update to an exact task ID
    already returned by NoFray does not need another broad duplicate search.
@@ -111,6 +113,32 @@ reads when useful, but serialize writes against their admitted context. A succes
 write can advance the generation: discover fresh context before the next proposal,
 and refresh after typed stale-context errors. Never increment a generation yourself
 or reuse an old receipt as current workspace context.
+
+## Query an exact task subset
+
+When the live `nofray_search_tasks` schema advertises structured selection, use
+its native `list`, completion `status`, `archive`, and exact `filters` rather
+than downloading every task and recreating NoFray rules. List and filters
+intersect. Values within one field are OR; different fields are AND. Use record
+IDs for projects/assignees and the returned canonical values for other fields.
+Without structured selection, the existing text search remains available.
+Follow the returned cursor unchanged and preserve `coverage`, `totalCount` and
+effective selection in claims about completeness. A stale cursor requires a
+fresh search; do not manufacture offsets or apply UI filters implicitly.
+
+## Archive, restore and delete
+
+When the live schema and action-specific capabilities permit it, use the same
+proposal/resolve/confirmed-apply flow with `request` containing exactly `action`,
+`recordType` and `recordID`. Actions are `archiveRecord`, `unarchiveRecord` and
+`deleteRecord`; types are `task`, `project` and `contact`. Do not set lifecycle
+fields through generic `fields`, and do not use these actions inside a changeSet.
+Task archive also clears Inbox membership; restoring does not recreate it.
+NoFray owns reference safety and related meeting cleanup. A blocked deletion
+must remain blocked; do not remove relations as a workaround.
+A verified deletion returns outcome `deleted` and `canonicalRecord: null`.
+An unverified committed deletion uses the same exact `repeatApply` recovery;
+never submit a replacement delete or infer success from a missing projection.
 
 ## Apply requested changes safely
 
