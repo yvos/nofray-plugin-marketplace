@@ -1,12 +1,15 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "nofray",
-  "version": "0.7.9",
-  "description": "Manage NoFray tasks and read meeting context through the live v2 contract.",
+  "version": "0.7.10",
+  "description": "Manage NoFray tasks, projects, contacts, and notes through the live v2 contract; read meeting context.",
   "homepage": "https://github.com/yvos/nofray-plugin-marketplace/tree/main/AgentPlugin",
   "repository": "https://github.com/yvos/nofray-plugin-marketplace",
   "keywords": [
     "tasks",
+    "projects",
+    "contacts",
+    "notes",
     "action-items",
     "transcripts",
     "todos",

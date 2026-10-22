@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.10 - 2026-10-22
+
+- Make standalone Project and Contact search, creation, editing, and lifecycle
+  actions discoverable alongside task management.
+- Document Project and Contact `notes` as editable Markdown bodies, including
+  full-body replacement, append-preserving updates, explicit clear, and the
+  existing action-specific permissions.
+
 ## 0.7.9 - 2026-10-20
 
 - Query native task lists and exact field subsets with snapshot-bound pagination

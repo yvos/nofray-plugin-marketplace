@@ -1,15 +1,15 @@
 # NoFray Agent Plugin
 
-Use NoFray from a compatible AI agent to manage actionable work and extract
-grounded tasks from client-held transcripts. The plugin combines:
+Use NoFray from a compatible AI agent to manage tasks, projects, and contacts,
+including their notes, and extract grounded tasks from client-held transcripts.
+The plugin combines:
 
 - the local NoFray MCP server at `http://127.0.0.1:7341/mcp`;
 - read-only meeting search, meeting bundles, and bounded meeting-document
   reads through `nofray_search_meetings`, `nofray_get_meeting`, and
   `nofray_get_meeting_document`;
-- a focused task-management skill that recognizes tasks, action items, actions, todos,
-  follow-ups, next steps, work items, reminders, taken, actiepunten, acties,
-  vervolgacties, vervolgstappen, werkpunten, and herinneringen;
+- a NoFray management skill that recognizes tasks and action items, as well as
+  direct Project/Contact work such as project notes and contact details;
 - a client-side transcript workflow: source-grounded task intent stays with the
   client while NoFray provides canonical task discovery, review and the
   proposal/apply/read-back route;
@@ -21,6 +21,17 @@ activation or MCP behavior.
 
 Because the MCP server runs inside the NoFray macOS app, this is a desktop-only
 plugin. NoFray and the AI client must run on the same Mac.
+
+Tasks, Projects, and Contacts are independently searchable and readable.
+Projects and Contacts can be created, updated, archived, restored, or deleted
+through the live V2 proposal workflow. Task `details` and Project/Contact
+`notes` are canonical Markdown bodies sent as string values; Markdown text such
+as headings, lists, and links is accepted directly. For `notes`, `set` replaces
+the full body, `clear` removes it, and omission leaves it unchanged. A Project
+or Contact can be created or updated without a linked task. Additions to notes
+preserve the existing body by proposing its full updated value. Project edits
+require the live `canRenameProjects` capability; Contact edits require
+`canEditContacts`.
 
 The live task search can select native lists, completion/archive state and exact
 field values while returning query coverage. Archive, restore and delete use
@@ -63,6 +74,9 @@ Send the requested status and report the canonical result, which may be the
 active next occurrence. Preserve typed lifecycle restrictions.
 For a change set, check the permissions for each
 project/contact create and each relation change as well as the task operation.
+Standalone project/contact operations use `recordType: "project"` or
+`recordType: "contact"` in an ordinary single-record proposal; they do not use
+the task dependency change-set route.
 
 Mutation field operations are exact and sparse:
 
@@ -228,7 +242,8 @@ After installation, start a new agent session and ask:
 A working installation should let the agent discover the NoFray tools, read
 the workspace configuration and live `recordMutationContractV2` capability,
 list canonical field values when needed, and search tasks. For a write test,
-explicitly ask it to create a disposable task; the agent should pass the v2
+explicitly ask it to create a disposable task or a disposable Project with a
+short notes paragraph; the agent should pass the v2
 context-bound request through the proposal, resolution, and apply tools in
 sequence, then verify the canonical readback.
 

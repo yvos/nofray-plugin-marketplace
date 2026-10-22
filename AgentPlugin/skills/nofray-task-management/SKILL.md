@@ -1,13 +1,15 @@
 ---
 name: nofray-task-management
-description: Use NoFray when the user wants to find, inspect, create, update, schedule, assign, complete, or organize tasks and equivalent actionable work, including action items, todos, follow-ups, next steps, reminders, taken, actiepunten, acties, vervolgstappen, werkpunten, or herinneringen in their local NoFray workspace.
+description: Use NoFray to find, inspect, create, update, schedule, assign, complete, or organize tasks and action items, or to create and edit projects, contacts, and their notes in the local workspace. Includes taken, actiepunten, todos, reminders, projecten, contacten, and notities.
 ---
 
-# NoFray task management
+# NoFray task, project, and contact management
 
 Use the NoFray MCP server as the source of truth for the mounted workspace. The
 NoFray macOS app must be running with its local MCP server enabled. The bundled
-connection targets `http://127.0.0.1:7341/mcp`.
+connection targets `http://127.0.0.1:7341/mcp`. NoFray supports independent
+Task, Project, and Contact records; a Project or Contact mutation does not
+require creating or changing a Task.
 
 The regular mutation tools use the v2 contract. Start each mutation session by
 calling `nofray_get_workspace_configuration` for the needed record types and
@@ -21,6 +23,14 @@ shape.
 Check the action-specific `capabilities` as well as the feature capabilities
 before proposing a write. They describe the available MCP routes and current
 workspace permissions. Schema field presence alone does not grant permission.
+Projects and Contacts use their own `nofray_search_projects` /
+`nofray_get_project` and `nofray_search_contacts` / `nofray_get_contact` routes.
+Search the requested record type when its identity is unclear, then use the
+returned stable ID. Before mutation, require the live
+`recordMutationContractV2` and `recordMutationV2` features and the relevant
+action capability. `canRenameProjects` is the live permission for editing any
+Project fields; `canEditContacts` controls Contact updates. Respect the other
+create and lifecycle capabilities individually.
 Complete or reopen a task through `updateRecord` by setting its configured
 status. Check `canComplete` for transitions into or out of completion as well as
 `canEdit` and the live status field contract. NoFray owns completion dates,
@@ -106,6 +116,10 @@ apply, and canonical readback workflow below.
    resolve mechanically; title, alias, path, basename, and fuzzy matches require
    an explicit choice.
 
+Project and Contact search/get are also standalone user-facing operations; a
+Task relation is not required. Do not run a Task search before a direct
+Project/Contact create or edit unless the user asks about related Tasks.
+
 Do not write when the user only asked to search, inspect, summarize, or explain.
 
 Reuse sufficient read results within the current operation. Parallelize independent
@@ -142,8 +156,9 @@ never submit a replacement delete or infer success from a missing projection.
 
 ## Apply requested changes safely
 
-For a user-requested task, project, or contact mutation, follow the complete
-server-owned v2 workflow:
+For a user-requested task, project, or contact mutation, including a direct
+Project/Contact request with no related Task, follow the complete server-owned
+v2 workflow:
 
 1. Build the v2 request with the exact live field operations. An omitted field
    is unchanged; `{ "operation": "set", "value": ... }` replaces one field;
@@ -165,6 +180,21 @@ server-owned v2 workflow:
    unavailable-field health, lifecycle state, record revision, and the returned
    schema/capability digests. A transport success without matching readback is
    not a completed write.
+
+Project fields use `title`, `aliases`, `tags`, `scheduled`, `due`, and `notes`;
+Contact fields use `displayName`, `aliases`, `tags`, `methods`, `affiliations`,
+and `notes`, subject to the live record contract. A Project or Contact's
+`notes` field is its Markdown body; Task narrative uses `details`. These body
+fields are sent as strings, and literal Markdown is accepted directly in the
+string value, including headings, lists, and links. No separate Markdown wrapper
+is needed. For a request to add or revise part of existing notes, read the
+current full body first when it is not already available, then submit the
+intended full replacement in one `notes` `set`. Preserve unrelated text and
+formatting. Use `clear` only when the user asks to remove the notes; omitting
+`notes` leaves it unchanged. Never send `set(null)` for these body fields.
+
+Examples include “Create project Atlas with these notes”, “Add this paragraph
+to project Atlas”, and “Update only Noor's contact notes”.
 
 When `canChangeInboxMembership` is available and the live proposal tool schema
 advertises Inbox actions, explicitly add or remove a task using the same workflow with

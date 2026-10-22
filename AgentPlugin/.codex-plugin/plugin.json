@@ -1,7 +1,7 @@
 {
   "name": "nofray",
-  "version": "0.7.9",
-  "description": "Manage NoFray tasks and read meeting context through the live v2 contract.",
+  "version": "0.7.10",
+  "description": "Manage NoFray tasks, projects, contacts, and notes through the live v2 contract; read meeting context.",
   "author": {
     "name": "NoFray"
   },
@@ -9,6 +9,9 @@
   "repository": "https://github.com/yvos/nofray-plugin-marketplace",
   "keywords": [
     "tasks",
+    "projects",
+    "contacts",
+    "notes",
     "action-items",
     "transcripts",
     "todos",
@@ -19,8 +22,8 @@
   "mcpServers": "./mcp.json",
   "interface": {
     "displayName": "NoFray",
-    "shortDescription": "Manage tasks and meetings in NoFray",
-    "longDescription": "Use NoFray to manage tasks through its v2 proposal workflow and read meeting context through its snapshot-bound search and document routes.",
+    "shortDescription": "Manage tasks, projects, and contacts",
+    "longDescription": "Use NoFray to manage tasks, Projects, Contacts, and their notes through the live v2 proposal workflow and read meeting context through snapshot-bound routes.",
     "developerName": "NoFray",
     "category": "Productivity",
     "capabilities": [

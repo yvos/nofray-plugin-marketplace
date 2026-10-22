@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "nofray",
-  "version": "0.7.9",
-  "description": "Manage NoFray tasks and read meeting context through the live v2 contract.",
+  "version": "0.7.10",
+  "description": "Manage NoFray tasks, projects, contacts, and notes through the live v2 contract; read meeting context.",
   "author": {
     "name": "NoFray"
   },
